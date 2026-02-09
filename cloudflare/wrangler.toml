@@ -1,0 +1,7 @@
+name = "equity-worker"
+main = "worker.js"
+compatibility_date = "2025-02-01"
+
+kv_namespaces = [
+  { binding = "KV", id = "YOUR_KV_ID" }
+]

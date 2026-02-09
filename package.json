@@ -1,0 +1,22 @@
+{
+  "name": "newhorizon-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:worker": "wrangler dev cloudflare/worker.js --config cloudflare/wrangler.toml",
+    "deploy:worker": "wrangler deploy cloudflare/worker.js --config cloudflare/wrangler.toml",
+    "push": "node local/push.js",
+    "watch": "node local/watcher.js"
+  },
+  "dependencies": {
+    "@ethersproject/wallet": "^5.7.0",
+    "@tsndr/cloudflare-worker-jwt": "^2.6.2",
+    "chokidar": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "wrangler": "^3.100.0"
+  }
+}

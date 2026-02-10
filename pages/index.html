@@ -1,8 +1,108 @@
-<button id="login">Connect MetaMask</button>
-<p id="status"></p>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>newhorizon logo – split o</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 20px;
+    }
 
-<canvas id="chart"></canvas>
-<pre id="analysis"></pre>
+    .logo {
+      display: flex;
+      align-items: baseline;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      font-size: 140px;
+      color: white;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="app.js"></script>
+    .logo svg {
+      width: 120px;
+      height: 120px;
+      margin: 0 4px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #login {
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid #fff;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #status {
+      color: #aaa;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    #chart {
+      max-width: 900px;
+      width: 90vw;
+      height: 320px;
+    }
+
+    #analysis {
+      color: #ddd;
+      width: 90vw;
+      max-width: 900px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <span>newh</span>
+
+    <!-- o = 黑洞 -->
+    <svg viewBox="0 0 120 120">
+      <defs>
+        <mask id="circle-mask">
+          <rect width="100%" height="100%" fill="black"/>
+          <circle cx="60" cy="60" r="50" fill="white"/>
+        </mask>
+      </defs>
+
+      <image
+        href="blackhole.jpg"
+        x="0"
+        y="0"
+        width="120"
+        height="120"
+        preserveAspectRatio="xMidYMid slice"
+        mask="url(#circle-mask)"
+      />
+    </svg>
+
+    <span>rizon</span>
+  </div>
+
+  <div class="actions">
+    <button id="login">Connect MetaMask</button>
+    <p id="status"></p>
+  </div>
+
+  <canvas id="chart"></canvas>
+  <pre id="analysis"></pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

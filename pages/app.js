@@ -1,5 +1,7 @@
 // Update to your deployed Worker URL, e.g. https://equity-worker.<account>.workers.dev
-const API = "https://your-worker-domain";
+const API = "https://newhorizon-dashboard.dakecrazy.workers.dev";
+//const API = "http://localhost:57745";
+
 
 let token;
 

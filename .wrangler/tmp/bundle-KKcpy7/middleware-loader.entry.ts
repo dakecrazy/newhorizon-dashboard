@@ -3,12 +3,12 @@
 // export dynamically through wrangler, or we can potentially let users directly
 // add them as a sort of "plugin" system.
 
-import ENTRY, { __INTERNAL_WRANGLER_MIDDLEWARE__ } from "/Volumes/ACASIS_H1/newhorizon-dashboard/.wrangler/tmp/bundle-XnLGbP/middleware-insertion-facade.js";
+import ENTRY, { __INTERNAL_WRANGLER_MIDDLEWARE__ } from "/Volumes/ACASIS_H1/newhorizon-dashboard/.wrangler/tmp/bundle-KKcpy7/middleware-insertion-facade.js";
 import { __facade_invoke__, __facade_register__, Dispatcher } from "/Volumes/ACASIS_H1/newhorizon-dashboard/node_modules/wrangler/templates/middleware/common.ts";
-import type { WorkerEntrypointConstructor } from "/Volumes/ACASIS_H1/newhorizon-dashboard/.wrangler/tmp/bundle-XnLGbP/middleware-insertion-facade.js";
+import type { WorkerEntrypointConstructor } from "/Volumes/ACASIS_H1/newhorizon-dashboard/.wrangler/tmp/bundle-KKcpy7/middleware-insertion-facade.js";
 
 // Preserve all the exports from the worker
-export * from "/Volumes/ACASIS_H1/newhorizon-dashboard/.wrangler/tmp/bundle-XnLGbP/middleware-insertion-facade.js";
+export * from "/Volumes/ACASIS_H1/newhorizon-dashboard/.wrangler/tmp/bundle-KKcpy7/middleware-insertion-facade.js";
 
 class __Facade_ScheduledController__ implements ScheduledController {
 	readonly #noRetry: ScheduledController["noRetry"];

@@ -1,4 +1,4 @@
-name = "equity-worker"
+name = "newhorizon-dashboard"
 main = "worker.js"
 compatibility_date = "2025-02-01"
 

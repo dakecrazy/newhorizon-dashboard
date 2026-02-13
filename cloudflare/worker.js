@@ -77,8 +77,8 @@ async function update(req, env) {
 
   const { equity, analysis } = await req.json();
 
-  await env.KV.put("current-equity", JSON.stringify(equity));
-  await env.KV.put("current-analysis", analysis);
+  await env.NEWHORIZON_WORKER.put("current-equity", JSON.stringify(equity));
+  await env.NEWHORIZON_WORKER.put("current-analysis", analysis);
 
   return Response.json({ ok: true });
 }
@@ -90,7 +90,7 @@ async function data(req, env) {
   }
 
   return Response.json({
-    equity: JSON.parse(await env.KV.get("current-equity")),
-    analysis: await env.KV.get("current-analysis")
+    equity: JSON.parse(await env.NEWHORIZON_WORKER.get("current-equity")),
+    analysis: await env.NEWHORIZON_WORKER.get("current-analysis")
   });
 }

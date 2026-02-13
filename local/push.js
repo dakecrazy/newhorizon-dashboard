@@ -1,9 +1,10 @@
-import fetch from "node-fetch";
+import dotenv from "dotenv";
 import { readEquity, readAnalysis } from "./parser.js";
-import "dotenv/config";
+
+dotenv.config({ path: "local/.env" });
 
 export async function pushData() {
-  await fetch(`${process.env.WORKER_URL}/update`, {
+  const res = await fetch(`${process.env.WORKER_URL}/update`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -14,4 +15,14 @@ export async function pushData() {
       analysis: readAnalysis()
     })
   });
+
+  const text = await res.text();
+  if (!res.ok) {
+    console.error("Push failed:", res.status, text);
+    return;
+  }
+
+  console.log("Push ok:", res.status, text);
 }
+
+await pushData();

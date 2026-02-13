@@ -28,14 +28,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// .wrangler/tmp/bundle-XnLGbP/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-KKcpy7/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init2) {
   const request = new Request(input, init2);
   request.headers.delete("CF-Connecting-IP");
   return request;
 }
 var init_strip_cf_connecting_ip_header = __esm({
-  ".wrangler/tmp/bundle-XnLGbP/strip-cf-connecting-ip-header.js"() {
+  ".wrangler/tmp/bundle-KKcpy7/strip-cf-connecting-ip-header.js"() {
     __name(stripCfConnectingIPHeader, "stripCfConnectingIPHeader");
     globalThis.fetch = new Proxy(globalThis.fetch, {
       apply(target, thisArg, argArray) {
@@ -5440,11 +5440,11 @@ var require_hash = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-XnLGbP/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-KKcpy7/middleware-loader.entry.ts
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-XnLGbP/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-KKcpy7/middleware-insertion-facade.js
 init_strip_cf_connecting_ip_header();
 init_modules_watch_stub();
 
@@ -8677,8 +8677,8 @@ async function update2(req, env) {
     return new Response("Unauthorized", { status: 401 });
   }
   const { equity, analysis } = await req.json();
-  await env.KV.put("current-equity", JSON.stringify(equity));
-  await env.KV.put("current-analysis", analysis);
+  await env.NEWHORIZON_WORKER.put("current-equity", JSON.stringify(equity));
+  await env.NEWHORIZON_WORKER.put("current-analysis", analysis);
   return Response.json({ ok: true });
 }
 __name(update2, "update");
@@ -8688,8 +8688,8 @@ async function data(req, env) {
     return new Response("Unauthorized", { status: 401 });
   }
   return Response.json({
-    equity: JSON.parse(await env.KV.get("current-equity")),
-    analysis: await env.KV.get("current-analysis")
+    equity: JSON.parse(await env.NEWHORIZON_WORKER.get("current-equity")),
+    analysis: await env.NEWHORIZON_WORKER.get("current-analysis")
   });
 }
 __name(data, "data");
@@ -8739,7 +8739,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-XnLGbP/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-KKcpy7/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -8773,7 +8773,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-XnLGbP/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-KKcpy7/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

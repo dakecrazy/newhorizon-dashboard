@@ -4,66 +4,102 @@
   <meta charset="UTF-8" />
   <title>newhorizon</title>
   <style>
-    body {
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
+
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
       background: #000;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      gap: 20px;
+      gap: 40px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      color: white;
+      padding: 20px;
     }
 
     .logo {
       display: flex;
-      align-items: baseline;
-      font-family: Arial, sans-serif;
+      align-items: center;
       font-weight: 700;
-      font-size: 140px;
-      color: white;
+      font-size: 160px;
+      letter-spacing: -4px;
+      text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
     }
 
     .logo svg {
-      width: 120px;
-      height: 120px;
-      margin: 0 4px;
+      width: 130px;
+      height: 130px;
+      margin: 0 5px;
+      filter: drop-shadow(0 0 20px rgba(100, 100, 255, 0.3));
+      transition: transform 0.3s ease;
+    }
+
+    .logo svg:hover {
+      transform: scale(1.05);
     }
 
     .actions {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 12px;
     }
 
     #login {
-      padding: 10px 16px;
-      font-size: 14px;
+      padding: 14px 32px;
+      font-size: 16px;
       font-weight: 600;
-      border: 1px solid #fff;
-      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
       color: #fff;
       cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    #login:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 30px rgba(100, 100, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    #login:active {
+      transform: translateY(0);
     }
 
     #status {
-      color: #aaa;
+      color: rgba(255, 255, 255, 0.6);
       margin: 0;
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 400;
     }
 
     #chart {
       max-width: 900px;
       width: 90vw;
       height: 320px;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     #analysis {
-      color: #ddd;
+      color: rgba(255, 255, 255, 0.8);
       width: 90vw;
       max-width: 900px;
       white-space: pre-wrap;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 13px;
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -88,6 +124,7 @@
         height="120"
         preserveAspectRatio="xMidYMid slice"
         mask="url(#circle-mask)"
+        transform="translate(5px, 8px)"
       />
     </svg>
 

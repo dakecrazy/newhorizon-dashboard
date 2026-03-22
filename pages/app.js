@@ -36,10 +36,32 @@ function getInjectedProvider() {
   if (!window.ethereum) return null;
 
   if (Array.isArray(window.ethereum.providers)) {
-    return window.ethereum.providers.find((provider) => provider.isMetaMask) || window.ethereum.providers[0];
+    return (
+      window.ethereum.providers.find((provider) => provider.isMetaMask && typeof provider.request === "function") ||
+      window.ethereum.providers.find((provider) => typeof provider.request === "function") ||
+      null
+    );
   }
 
-  return window.ethereum;
+  return typeof window.ethereum.request === "function" ? window.ethereum : null;
+}
+
+function getWalletErrorMessage(error) {
+  if (error?.code === 4001) {
+    return "你取消了钱包授权或签名。";
+  }
+
+  if (error?.message) {
+    if (error.message.includes("No matching key")) {
+      return "当前钱包没有可用账户，请先在 MetaMask 中解锁并选择账户。";
+    }
+    if (error.message.includes("User rejected")) {
+      return "你取消了钱包授权或签名。";
+    }
+    return `钱包连接失败: ${error.message}`;
+  }
+
+  return "钱包连接失败，请确认 MetaMask 已解锁并已授权当前网站。";
 }
 
 function setMarketValue(id, price) {
@@ -131,6 +153,11 @@ document.getElementById("login").onclick = async () => {
   }
 
   try {
+    if (!ethereumProvider || typeof ethereumProvider.request !== "function") {
+      alert("未检测到可用的钱包插件，请确认 MetaMask 已安装并启用。");
+      return;
+    }
+
     const [address] = await ethereumProvider.request({
       method: "eth_requestAccounts"
     });
@@ -140,6 +167,7 @@ document.getElementById("login").onclick = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address })
     });
+    if (!challengeRes.ok) throw new Error(`challenge HTTP ${challengeRes.status}`);
 
     const challenge = await challengeRes.json();
     if (!challenge.ok) return alert("Denied");
@@ -155,6 +183,7 @@ document.getElementById("login").onclick = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address, signature, message })
     });
+    if (!res.ok) throw new Error(`verify HTTP ${res.status}`);
 
     const data = await res.json();
     if (!data.ok) return alert("Denied");
@@ -163,7 +192,7 @@ document.getElementById("login").onclick = async () => {
     window.location.href = "dashboard.html";
   } catch (error) {
     console.error(error);
-    alert("请连接钱包");
+    alert(getWalletErrorMessage(error));
   }
 };
 

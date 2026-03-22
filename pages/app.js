@@ -124,8 +124,25 @@ document.getElementById("login").onclick = async () => {
       window.location.href = 'metamask://';
       return;
     } else if (isDesktop()) {
-      alert("未检测到 MetaMask 浏览器插件，请先安装并启用插件。");
-      return;
+      try {
+        const provider = new WalletConnectProvider({
+          bridge: "https://bridge.walletconnect.org",
+          qrcodeModal: true,
+          qrcodeModalOptions: {
+            mobileLinks: ["metamask"]
+          },
+          rpc: {
+            1: "https://cloudflare-eth.com"
+          },
+          chainId: 1
+        });
+        await provider.enable();
+        ethereumProvider = provider;
+      } catch (error) {
+        console.error("WalletConnect error:", error);
+        alert("扫码连接失败，请安装 MetaMask 扩展或检查网络。");
+        return;
+      }
     } else {
       alert("未检测到可用钱包，请使用 MetaMask 打开当前网站。");
       return;

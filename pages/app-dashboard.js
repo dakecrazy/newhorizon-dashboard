@@ -3,13 +3,6 @@ const API = "https://api.newhorizon.hk";
 
 const MARKET_INTERVAL_MS = 12_000;
 const MARKET_API = `${API}/market`;
-const MARKET_SYMBOLS = [
-  { key: "btc", symbol: "BTCUSD" },
-  { key: "eth", symbol: "ETHUSD" },
-  { key: "tsla", symbol: "TSLA" },
-  { key: "nvda", symbol: "NVDA" },
-  { key: "xaut", symbol: "XAUT" }
-];
 
 let chart;
 let marketTimer;
@@ -22,21 +15,9 @@ function setMarketValue(id, price) {
   element.innerText = Number.isFinite(num) ? num.toFixed(2) : price;
 }
 
-function getStoredValue(key) {
-  return sessionStorage.getItem(key) || localStorage.getItem(key);
-}
-
-function clearStoredValue(key) {
-  sessionStorage.removeItem(key);
-  localStorage.removeItem(key);
-}
-
 function setUserIdentity() {
-  const address = getStoredValue("dashboardAddress") || "未知地址";
-  const element = document.getElementById("user-address");
-  if (element) {
-    element.innerText = address;
-  }
+  const address = sessionStorage.getItem("dashboardAddress") || "未知地址";
+  document.getElementById("user-address").innerText = address;
 }
 
 async function refreshMarketPrices() {
@@ -69,7 +50,7 @@ function startMarketTicker() {
 }
 
 function ensureAuth() {
-  const token = getStoredValue("dashboardToken");
+  const token = sessionStorage.getItem("dashboardToken");
   if (!token) {
     window.location.href = "index.html";
     return false;
@@ -80,7 +61,7 @@ function ensureAuth() {
 async function loadData() {
   if (!ensureAuth()) return;
 
-  const token = getStoredValue("dashboardToken");
+  const token = sessionStorage.getItem("dashboardToken");
   try {
     const res = await fetch(`${API}/data`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -122,26 +103,15 @@ function renderChart(equity) {
 }
 
 function logout() {
-  clearStoredValue("dashboardToken");
-  clearStoredValue("dashboardAddress");
+  sessionStorage.removeItem("dashboardToken");
+  sessionStorage.removeItem("dashboardAddress");
   window.location.href = "index.html";
 }
 
 window.addEventListener("load", () => {
-  const chartElement = document.getElementById("chart");
-  const analysisElement = document.getElementById("analysis");
-  const logoutButton = document.getElementById("logout");
-
-  // Use element presence instead of pathname so custom routes still initialize.
-  if (!chartElement || !analysisElement || !logoutButton) {
-    return;
-  }
-
-  startMarketTicker();
-
   if (!ensureAuth()) return;
-
   setUserIdentity();
+  startMarketTicker();
   loadData();
-  logoutButton.onclick = logout;
+  document.getElementById("logout").onclick = logout;
 });

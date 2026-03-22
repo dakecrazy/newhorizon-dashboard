@@ -13,10 +13,17 @@ const MARKET_SYMBOLS = [
 let chart;
 let marketTimer;
 
-const DEV_SKIP_AUTH = false; // 临时 true 为跳过登录验证
+function getStoredValue(key) {
+  return sessionStorage.getItem(key) || localStorage.getItem(key);
+}
+
+function clearStoredValue(key) {
+  sessionStorage.removeItem(key);
+  localStorage.removeItem(key);
+}
 
 function setUserIdentity() {
-  const address = sessionStorage.getItem("dashboardAddress") || "未知地址";
+  const address = getStoredValue("dashboardAddress") || "未知地址";
   document.getElementById("user-address").innerText = address;
 }
 
@@ -128,7 +135,7 @@ function startMarketTicker() {
 }
 
 function ensureAuth() {
-  const token = sessionStorage.getItem("dashboardToken");
+  const token = getStoredValue("dashboardToken");
   if (!token) {
     window.location.href = "index.html";
     return false;
@@ -139,7 +146,7 @@ function ensureAuth() {
 async function loadData() {
   if (!ensureAuth()) return;
 
-  const token = sessionStorage.getItem("dashboardToken");
+  const token = getStoredValue("dashboardToken");
   try {
     const res = await fetch(`${API}/data`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -181,8 +188,8 @@ function renderChart(equity) {
 }
 
 function logout() {
-  sessionStorage.removeItem("dashboardToken");
-  sessionStorage.removeItem("dashboardAddress");
+  clearStoredValue("dashboardToken");
+  clearStoredValue("dashboardAddress");
   window.location.href = "index.html";
 }
 
@@ -194,15 +201,9 @@ window.addEventListener("load", () => {
 
   startMarketTicker();
 
-  if (!DEV_SKIP_AUTH && !ensureAuth()) return;
+  if (!ensureAuth()) return;
 
-  if (!DEV_SKIP_AUTH) setUserIdentity();
-  if (!DEV_SKIP_AUTH) loadData();
-
-  // 如果跳过 auth, 也可以写个假地址
-  if (DEV_SKIP_AUTH) {
-    document.getElementById("user-address").innerText = "0xDEVELOP";
-  }
-  // 依旧保留登出按钮，便于重复测试
+  setUserIdentity();
+  loadData();
   document.getElementById("logout").onclick = logout;
 });

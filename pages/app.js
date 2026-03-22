@@ -2,6 +2,22 @@
 const API = "https://api.newhorizon.hk";
 //const API = "http://localhost:57745";
 
+const MARKET_INTERVAL_MS = 12_000;
+
+let marketTimer;
+
+function saveAuthSession(token, address) {
+  try {
+    localStorage.setItem("dashboardToken", token);
+    localStorage.setItem("dashboardAddress", address);
+  } catch (error) {
+    console.warn("localStorage unavailable", error);
+  }
+
+  sessionStorage.setItem("dashboardToken", token);
+  sessionStorage.setItem("dashboardAddress", address);
+}
+
 // 设备检测函数
 function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -13,6 +29,79 @@ function isAndroid() {
 
 function isDesktop() {
   return !isIOS() && !isAndroid() && !/Mobile/.test(navigator.userAgent);
+}
+
+function setMarketValue(id, price) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  const num = Number(price);
+  element.innerText = Number.isFinite(num) ? num.toFixed(2) : price;
+}
+
+async function refreshMarketPrices() {
+  try {
+    const url = "https://api.hyperliquid.xyz/info";
+    const status = document.getElementById("market-status");
+
+    const promises = [
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "metaAndAssetCtxs" })
+      }).then((r) => r.json()),
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "spotMetaAndAssetCtxs" })
+      }).then((r) => r.json()),
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "metaAndAssetCtxs", dex: "xyz" })
+      }).then((r) => r.json())
+    ];
+
+    const [perpResult, spotResult, hip3Result] = await Promise.all(promises);
+    const [perpMeta, perpAssetCtxs] = perpResult;
+    const [spotMeta, spotAssetCtxs] = spotResult;
+    const [hip3Meta, hip3AssetCtxs] = hip3Result;
+
+    const btcIndex = perpMeta.universe.findIndex((u) => u.name === "BTC");
+    const ethIndex = perpMeta.universe.findIndex((u) => u.name === "ETH");
+    const tslaIndex = hip3Meta.universe.findIndex((u) => u.name === "xyz:TSLA");
+    const nvdaIndex = hip3Meta.universe.findIndex((u) => u.name === "xyz:NVDA");
+    const xautIndex = spotMeta.tokens.findIndex((token) => token.name === "XAUT0");
+
+    if (btcIndex >= 0) setMarketValue("price-btc", perpAssetCtxs[btcIndex]?.markPx);
+    if (ethIndex >= 0) setMarketValue("price-eth", perpAssetCtxs[ethIndex]?.markPx);
+    if (tslaIndex >= 0) setMarketValue("price-tsla", hip3AssetCtxs[tslaIndex]?.markPx);
+    if (nvdaIndex >= 0) setMarketValue("price-nvda", hip3AssetCtxs[nvdaIndex]?.markPx);
+    if (xautIndex >= 0) setMarketValue("price-xaut", spotAssetCtxs[xautIndex]?.markPx);
+
+    if (status) {
+      status.innerText = `更新于 ${new Date().toLocaleTimeString()}`;
+      status.style.color = "#8ede9c";
+    }
+  } catch (error) {
+    const status = document.getElementById("market-status");
+    if (status) {
+      status.innerText = "行情获取失败，稍后重试";
+      status.style.color = "#f79a9a";
+    }
+    console.error(error);
+  }
+}
+
+function startMarketTicker() {
+  const marketBar = document.getElementById("market-bar");
+  if (marketBar) {
+    marketBar.style.display = "flex";
+  }
+
+  if (marketTimer) clearInterval(marketTimer);
+  refreshMarketPrices();
+  marketTimer = setInterval(refreshMarketPrices, MARKET_INTERVAL_MS);
 }
 
 // 登录页脚本，仅做 auth 并跳转到 dashboard
@@ -86,11 +175,16 @@ document.getElementById("login").onclick = async () => {
     const data = await res.json();
     if (!data.ok) return alert("Denied");
 
-    sessionStorage.setItem("dashboardToken", data.token);
-    sessionStorage.setItem("dashboardAddress", address);
+    saveAuthSession(data.token, address);
     window.location.href = "dashboard.html";
   } catch (error) {
+    console.error(error);
     alert("请连接钱包");
-    window.location.href = 'https://metamask.io/';
   }
 };
+
+window.addEventListener("load", () => {
+  if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/" || window.location.pathname === "") {
+    startMarketTicker();
+  }
+});

@@ -1,4 +1,5 @@
 node_modules/
+.wrangler/
 local/.env
 equity.xlsx
 analysis.txt

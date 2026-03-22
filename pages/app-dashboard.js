@@ -2,6 +2,7 @@ const API = "https://api.newhorizon.hk";
 //const API = "http://localhost:8787";
 
 const MARKET_INTERVAL_MS = 12_000;
+const MARKET_API = `${API}/market`;
 const MARKET_SYMBOLS = [
   { key: "btc", symbol: "BTCUSD" },
   { key: "eth", symbol: "ETHUSD" },
@@ -12,6 +13,14 @@ const MARKET_SYMBOLS = [
 
 let chart;
 let marketTimer;
+
+function setMarketValue(id, price) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  const num = Number(price);
+  element.innerText = Number.isFinite(num) ? num.toFixed(2) : price;
+}
 
 function getStoredValue(key) {
   return sessionStorage.getItem(key) || localStorage.getItem(key);
@@ -29,93 +38,15 @@ function setUserIdentity() {
 
 async function refreshMarketPrices() {
   try {
-    const url = `https://api.hyperliquid.xyz/info`;
+    const res = await fetch(MARKET_API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const market = await res.json();
 
-    // 获取所有价格的Promise
-    const promises = [
-      // Perp markets (BTC, ETH)
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'metaAndAssetCtxs' })
-      }).then(r => r.json()),
-
-      // Spot markets (XAUT)
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'spotMetaAndAssetCtxs' })
-      }).then(r => r.json()),
-
-      // HIP-3 markets (TSLA, NVDA)
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'metaAndAssetCtxs', dex: 'xyz' })
-      }).then(r => r.json())
-    ];
-
-    const [perpResult, spotResult, hip3Result] = await Promise.all(promises);
-
-    // 解析 Perp 数据
-    // perpResult = [meta, assetCtxs]
-    const perpMeta = perpResult[0];
-    const perpAssetCtxs = perpResult[1];
-    
-    // 找到 BTC 和 ETH 的索引
-    const btcIndex = perpMeta.universe.findIndex(u => u.name === 'BTC');
-    const ethIndex = perpMeta.universe.findIndex(u => u.name === 'ETH');
-    
-    if (btcIndex >= 0) {
-      const btc = perpAssetCtxs[btcIndex];
-      const price = btc.markPx;
-      const num = Number(price);
-      document.getElementById(`price-btc`).innerText = Number.isFinite(num) ? num.toFixed(2) : price;
-    }
-    
-    if (ethIndex >= 0) {
-      const eth = perpAssetCtxs[ethIndex];
-      const price = eth.markPx;
-      const num = Number(price);
-      document.getElementById(`price-eth`).innerText = Number.isFinite(num) ? num.toFixed(2) : price;
-    }
-
-    // 解析 Spot 数据
-    // spotResult = [spotMeta, assetCtxs]
-    const spotMeta = spotResult[0];
-    const spotAssetCtxs = spotResult[1];
-    
-    // 找到 XAUT 的索引 (XAUT0 对应 @182)
-    const xautIndex = 182; // 硬编码 XAUT0 的索引位置
-    if (xautIndex >= 0 && spotAssetCtxs[xautIndex]) {
-      const xaut = spotAssetCtxs[xautIndex];
-      const price = xaut.markPx;
-      const num = Number(price);
-      document.getElementById(`price-xaut`).innerText = Number.isFinite(num) ? num.toFixed(2) : price;
-    }
-
-    // 解析 HIP-3 数据
-    // hip3Result = [meta, assetCtxs]
-    const hip3Meta = hip3Result[0];
-    const hip3AssetCtxs = hip3Result[1];
-    
-    // 找到 TSLA 和 NVDA 的索引 (HIP-3 资产名格式: xyz:TSLA)
-    const tslaIndex = hip3Meta.universe.findIndex(u => u.name === 'xyz:TSLA');
-    const nvdaIndex = hip3Meta.universe.findIndex(u => u.name === 'xyz:NVDA');
-    
-    if (tslaIndex >= 0) {
-      const tsla = hip3AssetCtxs[tslaIndex];
-      const price = tsla.markPx;
-      const num = Number(price);
-      document.getElementById(`price-tsla`).innerText = Number.isFinite(num) ? num.toFixed(2) : price;
-    }
-    
-    if (nvdaIndex >= 0) {
-      const nvda = hip3AssetCtxs[nvdaIndex];
-      const price = nvda.markPx;
-      const num = Number(price);
-      document.getElementById(`price-nvda`).innerText = Number.isFinite(num) ? num.toFixed(2) : price;
-    }
+    setMarketValue("price-btc", market.btc);
+    setMarketValue("price-eth", market.eth);
+    setMarketValue("price-tsla", market.tsla);
+    setMarketValue("price-nvda", market.nvda);
+    setMarketValue("price-xaut", market.xaut);
 
     const status = document.getElementById("market-status");
     status.innerText = `更新于 ${new Date().toLocaleTimeString()}`;

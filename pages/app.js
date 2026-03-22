@@ -3,6 +3,7 @@ const API = "https://api.newhorizon.hk";
 //const API = "http://localhost:57745";
 
 const MARKET_INTERVAL_MS = 12_000;
+const MARKET_API = `${API}/market`;
 
 let marketTimer;
 
@@ -41,43 +42,17 @@ function setMarketValue(id, price) {
 
 async function refreshMarketPrices() {
   try {
-    const url = "https://api.hyperliquid.xyz/info";
     const status = document.getElementById("market-status");
+    const res = await fetch(MARKET_API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const promises = [
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "metaAndAssetCtxs" })
-      }).then((r) => r.json()),
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "spotMetaAndAssetCtxs" })
-      }).then((r) => r.json()),
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "metaAndAssetCtxs", dex: "xyz" })
-      }).then((r) => r.json())
-    ];
+    const market = await res.json();
 
-    const [perpResult, spotResult, hip3Result] = await Promise.all(promises);
-    const [perpMeta, perpAssetCtxs] = perpResult;
-    const [spotMeta, spotAssetCtxs] = spotResult;
-    const [hip3Meta, hip3AssetCtxs] = hip3Result;
-
-    const btcIndex = perpMeta.universe.findIndex((u) => u.name === "BTC");
-    const ethIndex = perpMeta.universe.findIndex((u) => u.name === "ETH");
-    const tslaIndex = hip3Meta.universe.findIndex((u) => u.name === "xyz:TSLA");
-    const nvdaIndex = hip3Meta.universe.findIndex((u) => u.name === "xyz:NVDA");
-    const xautIndex = spotMeta.tokens.findIndex((token) => token.name === "XAUT0");
-
-    if (btcIndex >= 0) setMarketValue("price-btc", perpAssetCtxs[btcIndex]?.markPx);
-    if (ethIndex >= 0) setMarketValue("price-eth", perpAssetCtxs[ethIndex]?.markPx);
-    if (tslaIndex >= 0) setMarketValue("price-tsla", hip3AssetCtxs[tslaIndex]?.markPx);
-    if (nvdaIndex >= 0) setMarketValue("price-nvda", hip3AssetCtxs[nvdaIndex]?.markPx);
-    if (xautIndex >= 0) setMarketValue("price-xaut", spotAssetCtxs[xautIndex]?.markPx);
+    setMarketValue("price-btc", market.btc);
+    setMarketValue("price-eth", market.eth);
+    setMarketValue("price-tsla", market.tsla);
+    setMarketValue("price-nvda", market.nvda);
+    setMarketValue("price-xaut", market.xaut);
 
     if (status) {
       status.innerText = `更新于 ${new Date().toLocaleTimeString()}`;
@@ -184,7 +159,7 @@ document.getElementById("login").onclick = async () => {
 };
 
 window.addEventListener("load", () => {
-  if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/" || window.location.pathname === "") {
+  if (document.getElementById("market-bar")) {
     startMarketTicker();
   }
 });

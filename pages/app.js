@@ -118,36 +118,16 @@ document.getElementById("login").onclick = async () => {
 
   if (!ethereumProvider) {
     if (isIOS()) {
-      // iOS: 尝试跳转到 MetaMask App
       window.location.href = 'metamask://';
       return;
     } else if (isAndroid()) {
-      // Android: 跳转到 Play Store
-      window.location.href = 'https://play.google.com/store/apps/details?id=io.metamask';
+      window.location.href = 'metamask://';
       return;
     } else if (isDesktop()) {
-      // Desktop: 使用 WalletConnect 扫码
-      try {
-        const provider = new WalletConnectProvider({
-          bridge: "https://bridge.walletconnect.org",
-          qrcodeModal: true,
-          qrcodeModalOptions: {
-            mobileLinks: ["metamask"],
-          },
-          rpc: {
-            1: "https://cloudflare-eth.com", // 使用公共 RPC
-          },
-          chainId: 1,
-        });
-        await provider.enable();
-        ethereumProvider = provider;
-      } catch (error) {
-        console.error("WalletConnect error:", error);
-        alert("未检测到 MetaMask 插件，且扫码连接失败，请安装插件或打开 MetaMask 钱包重试。");
-        return;
-      }
+      alert("未检测到 MetaMask 浏览器插件，请先安装并启用插件。");
+      return;
     } else {
-      alert("请使用 MetaMask 钱包完成连接。");
+      alert("未检测到可用钱包，请使用 MetaMask 打开当前网站。");
       return;
     }
   }
@@ -161,6 +141,7 @@ document.getElementById("login").onclick = async () => {
     const [address] = await ethereumProvider.request({
       method: "eth_requestAccounts"
     });
+    if (!address) throw new Error("No account returned from wallet");
 
     const challengeRes = await fetch(`${API}/challenge`, {
       method: "POST",

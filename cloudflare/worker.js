@@ -43,7 +43,7 @@ async function challenge(req, env) {
   const nonce = crypto.randomUUID();
   const key = `nonce:${address.toLowerCase()}`;
 
-  await env.KV.put(key, nonce, { expirationTtl: 300 });
+  await env.NEWHORIZON_WORKER.put(key, nonce, { expirationTtl: 300 });
 
   const message = `Equity Dashboard Login\nNonce: ${nonce}`;
   return jsonResponse({ ok: true, message });
@@ -52,7 +52,7 @@ async function verify(req, env) {
   const { address, signature, message } = await req.json();
 
   const nonceKey = `nonce:${address.toLowerCase()}`;
-  const nonce = await env.KV.get(nonceKey);
+  const nonce = await env.NEWHORIZON_WORKER.get(nonceKey);
   if (!nonce) {
     return jsonResponse({ ok: false }, { status: 401 });
   }
@@ -81,7 +81,7 @@ async function verify(req, env) {
     return jsonResponse({ ok: false }, { status: 403 });
   }
 
-  await env.KV.delete(nonceKey);
+  await env.NEWHORIZON_WORKER.delete(nonceKey);
 
   const token = await jwt.sign(
     { sub: address, exp: Math.floor(Date.now() / 1000) + 3600 },
@@ -109,9 +109,21 @@ async function data(req, env) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  const equityRaw = await env.NEWHORIZON_WORKER.get("current-equity");
+  const analysis = await env.NEWHORIZON_WORKER.get("current-analysis");
+
+  let equity = [];
+  if (equityRaw) {
+    try {
+      equity = JSON.parse(equityRaw);
+    } catch {
+      return jsonResponse({ ok: false, error: "Invalid equity payload" }, { status: 500 });
+    }
+  }
+
   return jsonResponse({
-    equity: JSON.parse(await env.NEWHORIZON_WORKER.get("current-equity")),
-    analysis: await env.NEWHORIZON_WORKER.get("current-analysis")
+    equity,
+    analysis
   });
 }
 

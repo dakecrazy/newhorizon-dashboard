@@ -33,7 +33,10 @@ function clearStoredValue(key) {
 
 function setUserIdentity() {
   const address = getStoredValue("dashboardAddress") || "未知地址";
-  document.getElementById("user-address").innerText = address;
+  const element = document.getElementById("user-address");
+  if (element) {
+    element.innerText = address;
+  }
 }
 
 async function refreshMarketPrices() {
@@ -125,8 +128,12 @@ function logout() {
 }
 
 window.addEventListener("load", () => {
-  // 仅在 dashboard 页面启用行情更新和 token 检查
-  if (!window.location.pathname.endsWith("dashboard.html")) {
+  const chartElement = document.getElementById("chart");
+  const analysisElement = document.getElementById("analysis");
+  const logoutButton = document.getElementById("logout");
+
+  // Use element presence instead of pathname so custom routes still initialize.
+  if (!chartElement || !analysisElement || !logoutButton) {
     return;
   }
 
@@ -136,5 +143,5 @@ window.addEventListener("load", () => {
 
   setUserIdentity();
   loadData();
-  document.getElementById("logout").onclick = logout;
+  logoutButton.onclick = logout;
 });

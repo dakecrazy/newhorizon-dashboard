@@ -32,6 +32,16 @@ function isDesktop() {
   return !isIOS() && !isAndroid() && !/Mobile/.test(navigator.userAgent);
 }
 
+function getInjectedProvider() {
+  if (!window.ethereum) return null;
+
+  if (Array.isArray(window.ethereum.providers)) {
+    return window.ethereum.providers.find((provider) => provider.isMetaMask) || window.ethereum.providers[0];
+  }
+
+  return window.ethereum;
+}
+
 function setMarketValue(id, price) {
   const element = document.getElementById(id);
   if (!element) return;
@@ -82,7 +92,7 @@ function startMarketTicker() {
 // 登录页脚本，仅做 auth 并跳转到 dashboard
 
 document.getElementById("login").onclick = async () => {
-  let ethereumProvider = window.ethereum;
+  let ethereumProvider = getInjectedProvider();
 
   if (!ethereumProvider) {
     if (isIOS()) {
@@ -111,12 +121,11 @@ document.getElementById("login").onclick = async () => {
         ethereumProvider = provider;
       } catch (error) {
         console.error("WalletConnect error:", error);
-        alert("扫码连接失败，请安装 MetaMask 扩展或检查网络");
-        window.location.href = 'https://metamask.io/download/';
+        alert("未检测到 MetaMask 插件，且扫码连接失败，请安装插件或打开 MetaMask 钱包重试。");
         return;
       }
     } else {
-      window.location.href = 'https://metamask.io/download/';
+      alert("请使用 MetaMask 钱包完成连接。");
       return;
     }
   }

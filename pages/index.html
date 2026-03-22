@@ -197,6 +197,7 @@
    z-index: 999;
    display: flex;
    align-items: center;
+   flex-wrap: wrap;
    gap: 16px;
    padding: 10px 24px;
    font-size: 13px;
@@ -214,7 +215,7 @@
  </style>
 </head>
 <body>
- <div id="market-bar" class="market-bar" style="display: none;">
+ <div id="market-bar" class="market-bar">
    <div class="market-item">BTC: <span id="price-btc">--</span></div>
    <div class="market-item">ETH: <span id="price-eth">--</span></div>
    <div class="market-item">TSLA: <span id="price-tsla">--</span></div>

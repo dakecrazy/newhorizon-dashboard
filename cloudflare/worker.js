@@ -144,7 +144,7 @@ async function market() {
   const ethIndex = perpMeta.universe.findIndex((u) => u.name === "ETH");
   const tslaIndex = hip3Meta.universe.findIndex((u) => u.name === "xyz:TSLA");
   const nvdaIndex = hip3Meta.universe.findIndex((u) => u.name === "xyz:NVDA");
-  const xautIndex = spotMeta.tokens.findIndex((token) => token.name === "XAUT0");
+  const xautIndex = 182;
 
   return jsonResponse({
     btc: perpAssetCtxs[btcIndex]?.markPx ?? null,
